@@ -1,0 +1,41 @@
+LA BIBLIA DECODIFICADA — cómo generarla
+========================================
+
+Archivos de esta carpeta
+  versiculos.json        Los 31.084 versículos de la Reina Valera 1909, extraídos de ..\Biblia.pdf
+  generar.py             Pasa cada versículo por el prompt (..\prompt biblia decodificada.docx) con la API de Claude
+  construir_word.py      Maqueta los resultados en libros de Word (un archivo por libro o volumen)
+  resultados\            Aquí se guarda cada versículo decodificado (.md); se puede retomar en cualquier momento
+  libros\                Aquí aparecen los Word terminados
+  MUESTRA - ....docx     Ejemplo del diseño con Génesis 1:1
+
+1) PREPARACIÓN (una sola vez)
+   pip install anthropic python-docx pypdf
+   Crea una clave en https://console.anthropic.com y en PowerShell:
+     setx ANTHROPIC_API_KEY "tu-clave"        (luego cierra y abre la terminal)
+
+2) PROBAR CON UN VERSÍCULO (cuesta centavos, tarda unos minutos)
+   python generar.py prueba "Juan 3:16"
+   python construir_word.py --libro Juan
+   -> Revisa libros\Biblia Decodificada - 43 Juan.docx. Te muestra los tokens reales usados.
+
+3) CALCULAR EL COSTO
+   python generar.py estimar                 (toda la Biblia)
+   python generar.py estimar --libro Juan    (un libro)
+
+4) GENERAR EN LOTES (Batch API: la mitad de precio; cada lote tarda entre 1 y 24 h)
+   python generar.py enviar --libro Juan     (recomendado: libro por libro)
+   python generar.py enviar                  (toda la Biblia de una vez)
+   python generar.py estado                  (ver avance)
+   python generar.py descargar               (repetir hasta que todos los lotes estén descargados)
+   Los versículos que fallen se vuelven a mandar con "enviar".
+
+5) CREAR LOS LIBROS DE WORD
+   python construir_word.py                  (todos los libros con resultados, un archivo por libro)
+   python construir_word.py --libro Génesis  (todo Génesis en un solo Word)
+   python construir_word.py --por-volumen 100   (si prefieres partirlo en archivos más pequeños)
+   Al abrir cada Word, acepta "actualizar campos" para que se genere el índice.
+
+Modelo y profundidad
+   Por defecto: --modelo claude-opus-5-5 --esfuerzo high (máxima calidad).
+   Más barato:  --modelo claude-sonnet-5-5   o   --esfuerzo medium
